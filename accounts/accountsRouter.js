@@ -6,6 +6,8 @@ const router = express.Router();
 
 router.get("/", (req, res) => {
   db("accounts")
+    .limit(req.query.limit ? req.query.limit : null)
+    .orderBy(req.query.orderby ? req.query.orderby : "id")
     .then(accounts => {
       res.status(200).json(accounts);
     })
@@ -73,11 +75,9 @@ router.delete("/:id", (req, res) => {
       });
     })
     .catch(error => {
-      res
-        .status(500)
-        .json({
-          message: `Cannot delete account with id of ${req.params.id}: ${error.message}`
-        });
+      res.status(500).json({
+        message: `Cannot delete account with id of ${req.params.id}: ${error.message}`
+      });
     });
 });
 
