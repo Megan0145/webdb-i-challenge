@@ -17,10 +17,10 @@ router.get("/", (req, res) => {
 });
 
 router.get("/:id", validateAccountId, (req, res) => {
-    res.status(200).json(req.account[0]);
+  res.status(200).json(req.account[0]);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", validateAccount, async (req, res) => {
   try {
     const result = await db("accounts").insert({
       name: req.body.name,
@@ -37,7 +37,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", validateAccountId, async (req, res) => {
+router.put("/:id", validateAccountId, validateAccount, async (req, res) => {
   try {
     const result = await db("accounts")
       .where({ id: req.params.id })
@@ -57,7 +57,7 @@ router.put("/:id", validateAccountId, async (req, res) => {
   }
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", validateAccountId, (req, res) => {
   db("accounts")
     .where({ id: req.params.id })
     .del()
@@ -89,12 +89,22 @@ function validateAccountId(req, res, next) {
       }
     })
     .catch(err => {
-      res
-        .status(500)
-        .json({
-          message: `Something went terribly wrong trying to get account with id of ${req.params.id} : ${err.message}`
-        });
+      res.status(500).json({
+        message: `Something went terribly wrong trying to get account with id of ${req.params.id} : ${err.message}`
+      });
     });
+}
+
+function validateAccount(req, res, next) {
+  if (!Object.keys(req.body).length) {
+    res.status(400).json({ message: "Missing account data" });
+  } else if (!req.body.name) {
+    res.status(400).json({ message: "Missing required name field" });
+  } else if (!req.body.budget) {
+    res.status(400).json({ message: "Missing required budget field" });
+  } else {
+    next();
+  }
 }
 
 module.exports = router;
