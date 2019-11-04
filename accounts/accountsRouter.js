@@ -31,16 +31,38 @@ router.post("/", async (req, res) => {
       name: req.body.name,
       budget: req.body.budget
     });
-    res
-      .status(201)
-      .json({
-        message: "Account created successfully",
-        account: { id: result[0], name: req.body.name, budget: req.body.budget }
-      });
+    res.status(201).json({
+      message: "Account created successfully",
+      account: { id: result[0], name: req.body.name, budget: req.body.budget }
+    });
   } catch (error) {
     res
       .status(500)
       .json({ message: "Cannot create account: " + error.message });
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  try {
+    const result = await db("accounts")
+      .where({ id: req.params.id })
+      .update({ name: req.body.name, budget: req.body.budget });
+    res
+      .status(200)
+      .json({
+        message: `Account with id of ${req.params.id} got updated`,
+        account: {
+          id: req.params.id,
+          name: req.body.name,
+          budget: req.body.budget
+        }
+      });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message: `Cannot update account with id of ${req.params.id}: ${error.message}`
+      });
   }
 });
 
