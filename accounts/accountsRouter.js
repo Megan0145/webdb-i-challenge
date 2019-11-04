@@ -14,4 +14,17 @@ router.get("/", (req, res) => {
     });
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    const result = await db("accounts").where({ id: req.params.id });
+    res.status(200).json(result[0]);
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message: `Cannot get post with id of ${req.params.id} : ${error.message}`
+      });
+  }
+});
+
 module.exports = router;
