@@ -47,23 +47,38 @@ router.put("/:id", async (req, res) => {
     const result = await db("accounts")
       .where({ id: req.params.id })
       .update({ name: req.body.name, budget: req.body.budget });
-    res
-      .status(200)
-      .json({
-        message: `Account with id of ${req.params.id} got updated`,
-        account: {
-          id: req.params.id,
-          name: req.body.name,
-          budget: req.body.budget
-        }
-      });
+    res.status(200).json({
+      message: `Account with id of ${req.params.id} got updated`,
+      account: {
+        id: req.params.id,
+        name: req.body.name,
+        budget: req.body.budget
+      }
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: `Cannot update account with id of ${req.params.id}: ${error.message}`
-      });
+    res.status(500).json({
+      message: `Cannot update account with id of ${req.params.id}: ${error.message}`
+    });
   }
+});
+
+router.delete("/:id", (req, res) => {
+  db("accounts")
+    .where({ id: req.params.id })
+    .del()
+    .then(result => {
+      res.status(200).json({
+        message: "Account deleted successfully",
+        id: Number(req.params.id)
+      });
+    })
+    .catch(error => {
+      res
+        .status(500)
+        .json({
+          message: `Cannot delete account with id of ${req.params.id}: ${error.message}`
+        });
+    });
 });
 
 module.exports = router;
