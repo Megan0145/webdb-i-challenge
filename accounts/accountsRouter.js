@@ -37,7 +37,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", validateAccountId, async (req, res) => {
   try {
     const result = await db("accounts")
       .where({ id: req.params.id })
