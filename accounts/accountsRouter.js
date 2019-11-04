@@ -16,15 +16,8 @@ router.get("/", (req, res) => {
     });
 });
 
-router.get("/:id", async (req, res) => {
-  try {
-    const result = await db("accounts").where({ id: req.params.id });
-    res.status(200).json(result[0]);
-  } catch (error) {
-    res.status(500).json({
-      message: `Cannot get post with id of ${req.params.id} : ${error.message}`
-    });
-  }
+router.get("/:id", validateAccountId, (req, res) => {
+    res.status(200).json(req.account[0]);
 });
 
 router.post("/", async (req, res) => {
@@ -80,5 +73,28 @@ router.delete("/:id", (req, res) => {
       });
     });
 });
+
+//custom middleware
+function validateAccountId(req, res, next) {
+  db("accounts")
+    .where({ id: req.params.id })
+    .then(account => {
+      if (account.length) {
+        req.account = account;
+        next();
+      } else {
+        res
+          .status(404)
+          .json({ message: `No account with id of ${req.params.id} exists` });
+      }
+    })
+    .catch(err => {
+      res
+        .status(500)
+        .json({
+          message: `Something went terribly wrong trying to get account with id of ${req.params.id} : ${err.message}`
+        });
+    });
+}
 
 module.exports = router;
